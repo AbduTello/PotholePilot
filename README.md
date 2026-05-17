@@ -14,7 +14,7 @@ Michigan has the worst roads in the country. Cities like Detroit receive thousan
 
 ## The solution
 
-PotholePilot AI is a prioritization layer that sits on top of existing 311-style systems. It does four things existing tools don't:
+PotholePilot AI is a prioritization layer that sits on top of existing 311-style systems. It does three things existing tools don't:
 
 - **Clusters duplicates** — eight residents reporting the same pothole becomes one ticket with a "reported 8 times" badge
 - **Scores priority** — every ticket gets a 0–100 score based on severity, proximity to sensitive locations, safety language, age, and freeze-thaw forecast
@@ -25,8 +25,9 @@ PotholePilot AI is a prioritization layer that sits on top of existing 311-style
 ```
 ┌─────────────────────────────────────────┐
 │  Next.js 16 app (Vercel)                │
-│  ├─ /report   resident submission       │
-│  ├─ /dashboard  worker triage (WIP)     │
+│  ├─ /           resident submission     │
+│  ├─ /login      city worker sign-in     │
+│  ├─ /dashboard  worker triage           │
 │  └─ /api/reports  MCP orchestrator      │
 └──────────────────┬──────────────────────┘
                    │ @modelcontextprotocol/sdk
@@ -52,7 +53,7 @@ When a resident submits a report:
    - `find_nearby_duplicates_tool` → haversine query within 100m, returns cluster ID + count
    - `get_nearby_sensitive_locations_tool` → schools/hospitals/bus stops within 200m
 4. `calculate_priority_score_tool` → deterministic formula + Open-Meteo freeze-thaw check → 0–100 score + plain-English reason
-5. Report row updated with all extracted fields; resident sees score + reason on confirmation screen
+5. Report row updated with all extracted fields; resident sees ticket ID + "what happens next" confirmation
 6. If MCP pipeline fails, the report still saves — it just shows "score pending"
 
 The AI doesn't touch the database directly — it calls scoped MCP tools. That's how civic AI gets deployed responsibly.
@@ -63,6 +64,7 @@ The AI doesn't touch the database directly — it calls scoped MCP tools. That's
 |-------|--------|
 | Frontend | Next.js 16.2.6 (App Router) + React 19 + TypeScript |
 | Styling | Tailwind CSS v4 + shadcn/ui |
+| Auth | Supabase Auth (email + password) |
 | Maps | Leaflet + OpenStreetMap (no API key) |
 | Geocoding | Nominatim (OSM reverse geocoding) |
 | Database | Supabase (PostgreSQL) |
@@ -81,25 +83,29 @@ Everything is free at hackathon scale.
 PotholePilot/
 ├── src/
 │   ├── app/
-│   │   ├── page.tsx                  landing — links to /report and /dashboard
+│   │   ├── page.tsx                  resident submission form (home page)
 │   │   ├── layout.tsx                root layout with Header on every page
-│   │   ├── report/page.tsx           resident submission form (fully functional)
-│   │   ├── dashboard/page.tsx        city worker triage view (WIP — placeholders)
+│   │   ├── login/page.tsx            city worker email+password sign-in
+│   │   ├── dashboard/page.tsx        city worker triage view (auth-gated)
 │   │   └── api/
-│   │       └── reports/route.ts      POST handler — orchestrates all 5 MCP tools
+│   │       ├── reports/route.ts      GET all reports + POST new report (MCP orchestrator)
+│   │       └── reports/[id]/status/  PATCH status update
 │   ├── components/
-│   │   ├── Header.tsx                full-width logo, links back to /
-│   │   ├── PinMap.tsx                Leaflet map, click-to-pin + locate me
+│   │   ├── Header.tsx                full-width logo + city worker login link
+│   │   ├── DashboardMap.tsx          read-only Leaflet map with color-coded pins
+│   │   ├── PinMap.tsx                resident map (click-to-pin + locate me)
 │   │   ├── PhotoUpload.tsx           drag/drop + camera, preview + remove
 │   │   └── ui/button.tsx             shadcn button
 │   └── lib/
-│       ├── supabase.ts               anon + service role clients
+│       ├── supabase.ts               anon client (browser-safe)
+│       ├── supabase-admin.ts         service role client (server-only)
 │       └── mcp-client.ts             typed MCP client (StreamableHTTP → :8000/mcp)
 ├── mcp-server/
 │   ├── server.py                     FastMCP entry point, port 8000
+│   ├── seed.py                       seeds 50 realistic Detroit reports via the API
 │   ├── tools/
 │   │   ├── extract_report.py         calls Granite via watsonx
-│   │   ├── find_duplicates.py        haversine dedup (100m radius)
+│   │   ├── find_duplicates.py        haversine dedup (100m radius) + cluster bootstrap
 │   │   ├── nearby_locations.py       sensitive location proximity (200m)
 │   │   ├── calculate_score.py        deterministic formula + reason string
 │   │   └── update_status.py          worker status flip
@@ -109,37 +115,13 @@ PotholePilot/
 │   │   └── weather.py                Open-Meteo freeze-thaw multiplier
 │   ├── requirements.txt
 │   └── .env.example
-├── supabase/                         (SQL migration files — run manually)
+├── supabase/
+│   └── schema.sql                    full schema + RLS policies + seed locations
 ├── public/
 │   ├── PotholePilotHeaderLogo.png
 │   └── PotholeSign.png               favicon
 └── README.md
 ```
-
-## Current build status
-
-| Feature | Status |
-|---------|--------|
-| Resident submission form (description, map, photo) | ✅ Done |
-| Leaflet map with click-to-pin + locate me + reverse geocoding | ✅ Done |
-| Photo upload with preview (drag/drop + mobile camera) | ✅ Done |
-| Supabase Storage for photos | ✅ Done |
-| MCP server (FastMCP, streamable-http, port 8000) | ✅ Done |
-| Granite extraction via watsonx.ai | ✅ Done |
-| Duplicate clustering (haversine 100m) with cluster bootstrap fix | ✅ Done |
-| Sensitive location proximity (haversine 200m) | ✅ Done |
-| Priority scoring formula + plain-English reason | ✅ Done |
-| Freeze-thaw multiplier via Open-Meteo | ✅ Done |
-| Resident confirmation screen with "what happens next" copy | ✅ Done |
-| Graceful MCP degradation | ✅ Done |
-| Worker dashboard — stat cards (open, high priority, dupes) | ✅ Done |
-| Worker dashboard — Leaflet map with color-coded priority pins | ✅ Done |
-| Worker dashboard — priority queue with score badges | ✅ Done |
-| Worker dashboard — ticket detail panel with photo + score breakdown | ✅ Done |
-| Worker dashboard — status/priority filter bar | ✅ Done |
-| Worker dashboard — status update buttons (in progress / completed) | ✅ Done |
-| Worker dashboard — auto-refresh every 30s | ✅ Done |
-| Seed data script (50 realistic Detroit reports) | ✅ Done |
 
 ## Running locally
 
@@ -171,7 +153,11 @@ cp .env.example .env
 
 ### Database
 
-Run the SQL in your Supabase SQL editor to create the schema (tables and RLS policies are set up manually — see Supabase setup section in the project bible).
+Run `supabase/schema.sql` in your Supabase SQL editor. This creates all tables, RLS policies, and seeds the Detroit sensitive locations (schools, hospitals, bus stops).
+
+### Worker account
+
+Create a user in Supabase → Authentication → Users. Use those credentials to sign in at `/login`.
 
 ### Run
 
@@ -187,6 +173,17 @@ npm run dev
 # → http://localhost:3000
 ```
 
+### Seed demo data (optional)
+
+With both servers running:
+
+```bash
+cd mcp-server
+source venv/bin/activate
+python3 seed.py
+# → 50 reports submitted, each scored by the full AI pipeline
+```
+
 ## Environment variables
 
 ### Frontend (`.env.local`)
@@ -196,7 +193,6 @@ NEXT_PUBLIC_SUPABASE_URL=...
 NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 SUPABASE_SERVICE_ROLE_KEY=...
 MCP_SERVER_URL=http://localhost:8000
-DATABASE_URL=...
 ```
 
 ### MCP server (`mcp-server/.env`)
@@ -243,10 +239,9 @@ Cap final at 100.
 
 ## Roadmap (post-hackathon)
 
-- Worker dashboard (ranked queue, map, ticket detail panel) — in progress
-- Seed data — 40–60 realistic Detroit reports for demo
 - Real integration with Improve Detroit and other 311 systems
 - Image-based severity scoring (computer vision on uploaded photos)
+- Resident status tracking — look up your ticket by ID
 - Crew dispatch + route optimization
 - Resident notifications when their report is repaired
 - Expansion to other Michigan cities (Grand Rapids, Flint, Lansing)
