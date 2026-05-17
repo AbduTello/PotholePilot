@@ -2,7 +2,9 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import type { ReportRow } from "@/components/DashboardMap";
+import { supabase } from "@/lib/supabase";
 
 const DashboardMap = dynamic(() => import("@/components/DashboardMap"), { ssr: false });
 
@@ -65,6 +67,7 @@ function buildScoreBreakdown(report: ReportRow): Array<{ label: string; value: s
 }
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [reports, setReports] = useState<ReportRow[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -72,6 +75,17 @@ export default function DashboardPage() {
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
   const [filterPriority, setFilterPriority] = useState<FilterPriority>("all");
   const [filterOpen, setFilterOpen] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) router.replace("/login");
+    });
+  }, [router]);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.replace("/login");
+  };
 
   const fetchReports = useCallback(async () => {
     const res = await fetch("/api/reports");
@@ -127,6 +141,7 @@ export default function DashboardPage() {
           <h1 className="text-xl font-bold text-zinc-900">City Worker Dashboard</h1>
           <p className="text-xs text-zinc-500 mt-0.5">Detroit pothole repair queue</p>
         </div>
+        <div className="flex items-center gap-2">
         <button
           onClick={() => setFilterOpen((v) => !v)}
           className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
@@ -148,6 +163,13 @@ export default function DashboardPage() {
             </span>
           )}
         </button>
+        <button
+          onClick={handleSignOut}
+          className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 transition-colors"
+        >
+          Sign out
+        </button>
+        </div>
       </div>
 
       {/* Filter bar — slides in below header */}
@@ -221,7 +243,7 @@ export default function DashboardPage() {
       <div className="flex-1 px-6 py-6 flex flex-col gap-6 max-w-7xl mx-auto w-full">
 
         {/* Stat cards (always unfiltered) */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           {[
             { label: "Open tickets",      value: openCount },
             { label: "High priority",     value: highPriCount },
