@@ -23,6 +23,7 @@ create table if not exists reports (
   -- geo enrichment
   nearby_sensitive        jsonb,
   cluster_id              uuid,
+  duplicate_count         integer     not null default 0,
   created_at              timestamptz not null default now()
 );
 
@@ -103,3 +104,7 @@ insert into sensitive_locations (name, type, lat, lng) values
   ('Palmer Park',                          'park',     42.4114, -83.1199),
   ('Chandler Park',                        'park',     42.4037, -82.9697)
 on conflict (name, type, lat, lng) do nothing;
+
+
+-- ── migrations (run if table already exists) ─────────────────────────────────
+-- alter table reports add column if not exists duplicate_count integer not null default 0;

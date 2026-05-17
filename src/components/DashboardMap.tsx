@@ -21,6 +21,7 @@ export interface ReportRow {
   equity_flag: boolean;
   freeze_thaw_multiplier: number | null;
   cluster_id: string | null;
+  duplicate_count: number;
   created_at: string;
 }
 

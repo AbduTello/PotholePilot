@@ -91,6 +91,7 @@ export async function POST(req: NextRequest) {
         freeze_thaw_multiplier:  scored.freeze_thaw_multiplier,
         equity_flag:             scored.equity_flag,
         cluster_id:              duplicates.cluster_id,
+        duplicate_count:         duplicates.duplicate_count,
       })
       .eq("id", reportId);
 
