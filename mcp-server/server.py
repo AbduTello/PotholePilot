@@ -39,7 +39,6 @@ async def calculate_priority_score_tool(
     days_open: float,
     lat: float,
     lng: float,
-    zip_code: str = "",
 ) -> dict:
     """Run the deterministic priority formula. Returns 0-100 score + plain-English reason."""
     return await calculate_priority_score(
@@ -50,7 +49,6 @@ async def calculate_priority_score_tool(
         days_open=days_open,
         lat=lat,
         lng=lng,
-        zip_code=zip_code or None,
     )
 
 

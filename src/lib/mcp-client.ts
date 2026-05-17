@@ -50,7 +50,6 @@ export interface ScoreResult {
   priority_score: number;
   priority_reason: string;
   freeze_thaw_multiplier: number;
-  equity_flag: boolean;
 }
 
 export const mcpClient = {
@@ -71,7 +70,6 @@ export const mcpClient = {
     days_open: number;
     lat: number;
     lng: number;
-    zip_code?: string;
   }) => callTool<ScoreResult>("calculate_priority_score_tool", args as Record<string, unknown>),
 
   updateRepairStatus: (report_id: string, status: string) =>

@@ -61,11 +61,6 @@ function buildScoreBreakdown(report: ReportRow): Array<{ label: string; value: s
     lines.push({ label: "Freeze-thaw forecast", value: `×${report.freeze_thaw_multiplier.toFixed(1)}` });
   }
 
-  // 7. Equity adjustment
-  if (report.equity_flag) {
-    lines.push({ label: "Equity adjustment", value: "+10" });
-  }
-
   return lines;
 }
 
@@ -104,7 +99,6 @@ export default function DashboardPage() {
   const openCount    = reports.filter((r) => r.status === "open").length;
   const highPriCount = reports.filter((r) => (r.priority_score ?? 0) >= 70).length;
   const dupeCount    = reports.filter((r) => r.cluster_id !== null).length;
-  const equityCount  = reports.filter((r) => r.equity_flag).length;
 
   async function updateStatus(id: string, status: string) {
     setUpdatingId(id);
@@ -232,7 +226,6 @@ export default function DashboardPage() {
             { label: "Open tickets",      value: openCount },
             { label: "High priority",     value: highPriCount },
             { label: "Duplicates merged", value: dupeCount },
-            { label: "Equity flags",      value: equityCount },
           ].map(({ label, value }) => (
             <div key={label} className="rounded-xl border border-zinc-200 bg-white p-4">
               <p className="text-sm text-zinc-500">{label}</p>

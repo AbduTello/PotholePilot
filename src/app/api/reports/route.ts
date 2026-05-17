@@ -89,7 +89,6 @@ export async function POST(req: NextRequest) {
         priority_score:          scored.priority_score,
         priority_reason:         scored.priority_reason,
         freeze_thaw_multiplier:  scored.freeze_thaw_multiplier,
-        equity_flag:             scored.equity_flag,
         cluster_id:              duplicates.cluster_id,
         duplicate_count:         duplicates.duplicate_count,
       })
@@ -100,7 +99,6 @@ export async function POST(req: NextRequest) {
       priority_score:  scored.priority_score,
       priority_reason: scored.priority_reason,
       severity:        extracted.severity,
-      equity_flag:     scored.equity_flag,
     }, { status: 201 });
 
   } catch {
@@ -115,7 +113,6 @@ export async function POST(req: NextRequest) {
       priority_score:  null,
       priority_reason: "Score pending — AI pipeline unavailable",
       severity:        null,
-      equity_flag:     false,
     }, { status: 201 });
   }
 }

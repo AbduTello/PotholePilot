@@ -1,16 +1,5 @@
 from lib.weather import get_freeze_thaw_multiplier
 
-# Zip-level median household income — 2022 ACS approximations for Detroit area
-ZIP_INCOME: dict[str, int] = {
-    "48201": 30_000,   # Midtown/Downtown
-    "48202": 32_000,   # New Center
-    "48214": 38_000,   # West Village
-    "48207": 45_000,   # Lafayette Park
-    "48226": 60_000,   # Downtown core
-    "48230": 95_000,   # Grosse Pointe Park
-}
-CITY_MEDIAN_INCOME = 35_000  # Detroit approximate median
-
 SEVERITY_WEIGHTS = {"low": 10, "medium": 25, "high": 40}
 PROXIMITY_BONUSES = {"school": 20, "hospital": 15, "bus_stop": 10, "senior_center": 15}
 SAFETY_KEYWORDS = [
@@ -26,7 +15,6 @@ def _build_reason(
     matched_keywords: list[str],
     days_open: float,
     freeze_thaw: float,
-    equity_adj: int,
     final_score: int,
 ) -> str:
     parts = []
@@ -60,9 +48,6 @@ def _build_reason(
     if freeze_thaw > 1.0:
         parts.append("freezing temperatures are forecast this week")
 
-    if equity_adj > 0:
-        parts.append("this area has historically received slower repairs")
-
     if not parts:
         return f"This pothole scored {final_score}."
 
@@ -78,7 +63,6 @@ async def calculate_priority_score(
     days_open: float,
     lat: float,
     lng: float,
-    zip_code: str | None = None,
 ) -> dict:
     # Base score
     base = SEVERITY_WEIGHTS.get(severity, 25)
@@ -100,23 +84,15 @@ async def calculate_priority_score(
     freeze_thaw = await get_freeze_thaw_multiplier(lat, lng)
     score = base * freeze_thaw
 
-    # Equity adjustment
-    equity_adj = 0
-    if zip_code and zip_code in ZIP_INCOME:
-        if ZIP_INCOME[zip_code] < CITY_MEDIAN_INCOME:
-            equity_adj = 10
-    score += equity_adj
-
     final = min(round(score), 100)
 
     reason = _build_reason(
         severity, duplicate_count, nearby_sensitive,
-        matched, days_open, freeze_thaw, equity_adj, final,
+        matched, days_open, freeze_thaw, final,
     )
 
     return {
         "priority_score":  final,
         "priority_reason": reason,
         "freeze_thaw_multiplier": freeze_thaw,
-        "equity_flag": equity_adj > 0,
     }

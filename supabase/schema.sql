@@ -19,7 +19,6 @@ create table if not exists reports (
   priority_score          integer,
   priority_reason         text,
   freeze_thaw_multiplier  numeric     default 1.0,
-  equity_flag             boolean     default false,
   -- geo enrichment
   nearby_sensitive        jsonb,
   cluster_id              uuid,
@@ -108,3 +107,4 @@ on conflict (name, type, lat, lng) do nothing;
 
 -- ── migrations (run if table already exists) ─────────────────────────────────
 -- alter table reports add column if not exists duplicate_count integer not null default 0;
+-- alter table reports drop column if exists equity_flag;

@@ -18,7 +18,6 @@ export interface ReportRow {
   urgency_signals: string[] | null;
   landmarks_mentioned: string[] | null;
   nearby_sensitive: Array<{ id: string; name: string; type: string; distance: number }> | null;
-  equity_flag: boolean;
   freeze_thaw_multiplier: number | null;
   cluster_id: string | null;
   duplicate_count: number;

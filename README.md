@@ -2,7 +2,7 @@
 
 > The triage layer for city pothole queues.
 
-PotholePilot AI helps Michigan cities turn messy resident pothole complaints into prioritized repair decisions. Residents file reports in plain language; a Granite-powered pipeline running through an MCP server extracts severity, clusters duplicates, factors in proximity to schools and bus stops, weights by freeze-thaw weather risk, and surfaces an equity flag when underserved neighborhoods are being deprioritized. City workers get a ranked dashboard with plain-English explanations they can defend to residents.
+PotholePilot AI helps Michigan cities turn messy resident pothole complaints into prioritized repair decisions. Residents file reports in plain language; a Granite-powered pipeline running through an MCP server extracts severity, clusters duplicates, factors in proximity to schools and bus stops, and weights by freeze-thaw weather risk. City workers get a ranked dashboard with plain-English explanations they can defend to residents.
 
 Built for [Hack Michigan 2026](https://hackmichigan.org) — Smart Urban Planning & Community Development track.
 
@@ -17,9 +17,8 @@ Michigan has the worst roads in the country. Cities like Detroit receive thousan
 PotholePilot AI is a prioritization layer that sits on top of existing 311-style systems. It does four things existing tools don't:
 
 - **Clusters duplicates** — eight residents reporting the same pothole becomes one ticket with a "reported 8 times" badge
-- **Scores priority** — every ticket gets a 0–100 score based on severity, proximity to sensitive locations, safety language, age, freeze-thaw forecast, and an equity adjustment
+- **Scores priority** — every ticket gets a 0–100 score based on severity, proximity to sensitive locations, safety language, age, and freeze-thaw forecast
 - **Explains itself** — every score comes with a plain-English sentence workers can read aloud to residents or council members
-- **Surfaces inequity** — flags tickets in lower-income zip codes that are aging while reports in wealthier areas get fixed
 
 ## How it works
 
@@ -131,10 +130,9 @@ PotholePilot/
 | Sensitive location proximity (haversine 200m) | ✅ Done |
 | Priority scoring formula + plain-English reason | ✅ Done |
 | Freeze-thaw multiplier via Open-Meteo | ✅ Done |
-| Equity flag (low-income zip + ticket age) | ✅ Done |
 | Resident confirmation screen with "what happens next" copy | ✅ Done |
 | Graceful MCP degradation | ✅ Done |
-| Worker dashboard — stat cards (open, high priority, dupes, equity) | ✅ Done |
+| Worker dashboard — stat cards (open, high priority, dupes) | ✅ Done |
 | Worker dashboard — Leaflet map with color-coded priority pins | ✅ Done |
 | Worker dashboard — priority queue with score badges | ✅ Done |
 | Worker dashboard — ticket detail panel with photo + score breakdown | ✅ Done |
@@ -224,15 +222,11 @@ base =
   + safety_keyword_bonus         (+10 per term, max 20)
   + age_bonus                    (min(days_open * 0.5, 15))
 
-final = base * freeze_thaw_multiplier + equity_adjustment
+final = base * freeze_thaw_multiplier
 
     freeze_thaw_multiplier:
       1.0  — no freeze-thaw forecast in next 7 days
       1.3  — forecast crosses 32°F within 7 days
-
-    equity_adjustment:
-      +10  if zip median income < city median AND ticket age > 14 days
-        0  otherwise
 
 Cap final at 100.
 ```
