@@ -103,7 +103,7 @@ async def calculate_priority_score(
     # Equity adjustment
     equity_adj = 0
     if zip_code and zip_code in ZIP_INCOME:
-        if ZIP_INCOME[zip_code] < CITY_MEDIAN_INCOME and days_open > 14:
+        if ZIP_INCOME[zip_code] < CITY_MEDIAN_INCOME:
             equity_adj = 10
     score += equity_adj
 
