@@ -71,17 +71,32 @@ export default function ReportPage() {
       <main className="min-h-screen bg-zinc-50 px-4 py-10 sm:px-8">
         <div className="mx-auto max-w-md flex flex-col gap-6 pt-16">
           <div className="flex flex-col items-center gap-2 text-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-2xl">✓</div>
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-3xl">✓</div>
             <h1 className="text-2xl font-bold text-zinc-900">Report submitted!</h1>
             <p className="text-sm text-zinc-500">
-              The city has been notified and your report is in the queue. Thank you for helping improve Detroit&apos;s roads.
+              The city has been notified and your report is in the repair queue.
             </p>
           </div>
 
           <div className="rounded-2xl border border-zinc-200 bg-white p-6 flex flex-col gap-4 shadow-sm">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between border-b border-zinc-100 pb-4">
               <span className="text-xs text-zinc-400">Ticket ID</span>
-              <span className="font-mono text-xs text-zinc-500">{result.id.slice(0, 8)}…</span>
+              <span className="font-mono text-xs text-zinc-500">{result.id.slice(0, 8).toUpperCase()}…</span>
+            </div>
+
+            <div className="flex flex-col gap-2 text-sm text-zinc-600">
+              <div className="flex items-start gap-2">
+                <span className="mt-0.5 text-zinc-400">1.</span>
+                <span>Your report has been added to Detroit&apos;s repair queue and scored for urgency.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="mt-0.5 text-zinc-400">2.</span>
+                <span>A city crew will be dispatched based on priority — high-risk locations near schools and hospitals are addressed first.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="mt-0.5 text-zinc-400">3.</span>
+                <span>If others have reported the same pothole, your report helps move it up the queue.</span>
+              </div>
             </div>
           </div>
 
