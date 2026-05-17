@@ -254,8 +254,6 @@ We're not replacing Improve Detroit. We're making it 10x more effective.
 
 ## Team
 
-Built at Hack Michigan 2026. [Add team member names]
+Built at Hack Michigan 2026. 
 
-## License
 
-MIT
