@@ -127,18 +127,21 @@ PotholePilot/
 | Supabase Storage for photos | ✅ Done |
 | MCP server (FastMCP, streamable-http, port 8000) | ✅ Done |
 | Granite extraction via watsonx.ai | ✅ Done |
-| Duplicate clustering (haversine 100m) | ✅ Done |
+| Duplicate clustering (haversine 100m) with cluster bootstrap fix | ✅ Done |
 | Sensitive location proximity (haversine 200m) | ✅ Done |
 | Priority scoring formula + plain-English reason | ✅ Done |
 | Freeze-thaw multiplier via Open-Meteo | ✅ Done |
 | Equity flag (low-income zip + ticket age) | ✅ Done |
-| Resident confirmation screen with score + reason | ✅ Done |
+| Resident confirmation screen with "what happens next" copy | ✅ Done |
 | Graceful MCP degradation | ✅ Done |
-| Worker dashboard — ranked queue | ⬜ Next |
-| Worker dashboard — map with color-coded pins | ⬜ Next |
-| Worker dashboard — ticket detail panel + score breakdown | ⬜ Next |
-| Worker dashboard — status update buttons | ⬜ Next |
-| Seed data (40–60 demo reports) | ⬜ Next |
+| Worker dashboard — stat cards (open, high priority, dupes, equity) | ✅ Done |
+| Worker dashboard — Leaflet map with color-coded priority pins | ✅ Done |
+| Worker dashboard — priority queue with score badges | ✅ Done |
+| Worker dashboard — ticket detail panel with photo + score breakdown | ✅ Done |
+| Worker dashboard — status/priority filter bar | ✅ Done |
+| Worker dashboard — status update buttons (in progress / completed) | ✅ Done |
+| Worker dashboard — auto-refresh every 30s | ✅ Done |
+| Seed data script (50 realistic Detroit reports) | ✅ Done |
 
 ## Running locally
 
