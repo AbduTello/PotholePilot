@@ -1,42 +1,85 @@
+"use client";
+
+import dynamic from "next/dynamic";
+import { useState, useCallback } from "react";
+
+const PinMap = dynamic(() => import("@/components/PinMap"), { ssr: false });
+
 export default function ReportPage() {
+  const [address, setAddress] = useState("");
+
+  const handleLocationSelect = useCallback((_lat: number, _lng: number, addr: string) => {
+    setAddress(addr);
+  }, []);
+
   return (
-    <main className="min-h-screen bg-zinc-50 p-8">
+    <main className="min-h-screen bg-zinc-50 px-4 py-10 sm:px-8">
       <div className="mx-auto max-w-2xl">
         <h1 className="text-2xl font-bold tracking-tight text-zinc-900">Report a Pothole</h1>
         <p className="mt-1 text-sm text-zinc-500">
-          Fill out the form below to submit a pothole report to the city.
+          Takes less than a minute. Your report goes straight to the city.
         </p>
 
-        <div className="mt-8 flex flex-col gap-8">
+        <form className="mt-8 flex flex-col gap-8">
 
-          {/* TODO: Photo upload section
-              - Allow resident to upload or take a photo of the pothole
-              - Preview the selected image before submission
-              - Store file reference in form state
-          */}
-          <section className="rounded-xl border border-dashed border-zinc-300 bg-white p-6 text-center text-sm text-zinc-400">
-            Photo Upload — coming soon
-          </section>
+          {/* 1. Description */}
+          <div className="flex flex-col gap-2">
+            <label htmlFor="description" className="text-base font-semibold text-zinc-900">
+              What&apos;s going on? <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              required
+              rows={5}
+              placeholder="e.g., Huge pothole outside the elementary school on Bagley. Cars are swerving and it's been there for two weeks."
+              className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 placeholder-zinc-400 shadow-sm outline-none transition focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200 resize-none"
+            />
+          </div>
 
-          {/* TODO: Map / location picker section
-              - Embed an interactive map (e.g. Mapbox or Google Maps)
-              - Let the resident drop a pin or use their current GPS location
-              - Reverse-geocode the pin to a human-readable address
-          */}
-          <section className="rounded-xl border border-dashed border-zinc-300 bg-white p-6 text-center text-sm text-zinc-400">
-            Map / Location Picker — coming soon
-          </section>
+          {/* 2. Location */}
+          <div className="flex flex-col gap-2">
+            <label className="text-base font-semibold text-zinc-900">
+              Where? <span className="text-red-500">*</span>
+            </label>
 
-          {/* TODO: Submission form
-              - Fields: address (pre-filled from map pin), severity, description
-              - Validate required fields before submitting
-              - POST to /api/reports on submit
-          */}
-          <section className="rounded-xl border border-dashed border-zinc-300 bg-white p-6 text-center text-sm text-zinc-400">
-            Submission Form — coming soon
-          </section>
+            <PinMap onLocationSelect={handleLocationSelect} />
 
-        </div>
+            <input
+              type="text"
+              name="address"
+              value={address}
+              readOnly
+              placeholder="Drop a pin to fill in the address automatically"
+              className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-700 placeholder-zinc-400 shadow-sm outline-none"
+            />
+          </div>
+
+          {/* 3. Photo (optional) */}
+          <div className="flex flex-col gap-2">
+            <label className="text-base font-semibold text-zinc-900">
+              Photo <span className="text-zinc-400 font-normal text-sm">(optional)</span>
+            </label>
+
+            {/* TODO: Photo upload
+                - Allow resident to upload or take a photo
+                - Show a thumbnail preview before submission
+                - Store file reference in form state and attach to report on submit
+            */}
+            <div className="flex h-32 w-full items-center justify-center rounded-xl border border-dashed border-zinc-300 bg-white text-sm text-zinc-400">
+              Photo upload — coming soon
+            </div>
+          </div>
+
+          {/* Submit */}
+          <button
+            type="submit"
+            className="w-full rounded-xl bg-zinc-900 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-zinc-700"
+          >
+            Submit Report
+          </button>
+
+        </form>
       </div>
     </main>
   );
