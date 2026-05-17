@@ -32,10 +32,10 @@ function buildScoreBreakdown(report: ReportRow): Array<{ label: string; value: s
     if (bonus) lines.push({ label: `Near ${loc.name}`, value: `+${bonus}` });
   }
 
-  // 3. Duplicate cluster
-  // TODO: store duplicate_count on the reports row to show exact count
-  if (report.cluster_id) {
-    lines.push({ label: "Duplicate cluster", value: "+up to 20" });
+  // 3. Duplicate cluster (duplicate_count stored at submit time)
+  if (report.cluster_id && report.duplicate_count > 0) {
+    const dupeBonus = Math.min(report.duplicate_count * 3, 20);
+    lines.push({ label: `Reported ${report.duplicate_count + 1}× total`, value: `+${dupeBonus}` });
   }
 
   // 4. Safety keywords (up to 2 matches × +10, max +20)
@@ -84,7 +84,11 @@ export default function DashboardPage() {
     setLoading(false);
   }, []);
 
-  useEffect(() => { fetchReports(); }, [fetchReports]);
+  useEffect(() => {
+    fetchReports();
+    const interval = setInterval(fetchReports, 30_000);
+    return () => clearInterval(interval);
+  }, [fetchReports]);
 
   const filteredReports = reports.filter((r) => {
     if (filterStatus !== "all" && r.status !== filterStatus) return false;
@@ -263,6 +267,14 @@ export default function DashboardPage() {
                     </span>
                   )}
                 </div>
+
+                {selectedReport.photo_url && (
+                  <img
+                    src={selectedReport.photo_url}
+                    alt="Report photo"
+                    className="w-full rounded-lg object-cover max-h-48 mb-4 border border-zinc-100"
+                  />
+                )}
 
                 <p className="text-xs font-medium text-zinc-500 mb-1">AI summary</p>
                 <div className="rounded-lg bg-zinc-50 border border-zinc-100 px-4 py-3 text-sm text-zinc-700 leading-relaxed mb-4">
