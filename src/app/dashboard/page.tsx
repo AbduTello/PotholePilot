@@ -380,41 +380,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-zinc-900 text-zinc-400 mt-auto">
-        <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-2 md:grid-cols-4 gap-8">
-          {[
-            {
-              heading: "Career",
-              links: ["MDOT jobs", "Transportation Career Pathways Program", "STEM Outreach Internship", "Veteran Internship"],
-            },
-            {
-              heading: "Finance and funding",
-              links: ["Annual financial reports", "Bonding", "Act 51", "Michigan Transportation Fund"],
-            },
-            {
-              heading: "Inclusion",
-              links: ["Freedom of Information Act", "Civil Rights", "Language access"],
-            },
-            {
-              heading: "Performance",
-              links: ["Mission, Vision, and Values", "MDOT innovations", "Transportation system performance"],
-            },
-          ].map(({ heading, links }) => (
-            <div key={heading}>
-              <p className="text-sm font-semibold text-zinc-200 mb-3">{heading}</p>
-              <ul className="space-y-2">
-                {links.map((link) => (
-                  <li key={link}>
-                    <span className="text-xs text-zinc-400 hover:text-zinc-200 cursor-pointer transition-colors">{link}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </footer>
-
     </div>
   );
 }
