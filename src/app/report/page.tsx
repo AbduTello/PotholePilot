@@ -8,6 +8,10 @@ const PinMap = dynamic(() => import("@/components/PinMap"), { ssr: false });
 
 type Status = "idle" | "submitting" | "success" | "error";
 
+interface SubmitResult {
+  id: string;
+}
+
 export default function ReportPage() {
   const [address, setAddress] = useState("");
   const [lat, setLat] = useState<number | null>(null);
@@ -15,6 +19,7 @@ export default function ReportPage() {
   const [photo, setPhoto] = useState<File | null>(null);
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const [result, setResult] = useState<SubmitResult | null>(null);
 
   const handleLocationSelect = useCallback((lat: number, lng: number, addr: string) => {
     setLat(lat);
@@ -46,10 +51,9 @@ export default function ReportPage() {
 
     try {
       const res = await fetch("/api/reports", { method: "POST", body: formData });
-      if (!res.ok) {
-        const body = await res.json();
-        throw new Error(body.error ?? "Something went wrong");
-      }
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error ?? "Something went wrong");
+      setResult(body);
       setStatus("success");
       form.reset();
       setAddress("");
@@ -62,16 +66,28 @@ export default function ReportPage() {
     }
   };
 
-  if (status === "success") {
+  if (status === "success" && result) {
     return (
       <main className="min-h-screen bg-zinc-50 px-4 py-10 sm:px-8">
-        <div className="mx-auto max-w-2xl flex flex-col items-center gap-4 pt-20 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-3xl">✓</div>
-          <h1 className="text-2xl font-bold text-zinc-900">Report submitted!</h1>
-          <p className="text-zinc-500">Thanks for letting us know. The city has been notified.</p>
+        <div className="mx-auto max-w-md flex flex-col gap-6 pt-16">
+          <div className="flex flex-col items-center gap-2 text-center">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-2xl">✓</div>
+            <h1 className="text-2xl font-bold text-zinc-900">Report submitted!</h1>
+            <p className="text-sm text-zinc-500">
+              The city has been notified and your report is in the queue. Thank you for helping improve Detroit&apos;s roads.
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-200 bg-white p-6 flex flex-col gap-4 shadow-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-zinc-400">Ticket ID</span>
+              <span className="font-mono text-xs text-zinc-500">{result.id.slice(0, 8)}…</span>
+            </div>
+          </div>
+
           <button
-            onClick={() => setStatus("idle")}
-            className="mt-4 rounded-xl bg-zinc-900 px-6 py-2.5 text-sm font-semibold text-white hover:bg-zinc-700 transition-colors"
+            onClick={() => { setStatus("idle"); setResult(null); }}
+            className="w-full rounded-xl bg-zinc-900 px-6 py-3 text-sm font-semibold text-white hover:bg-zinc-700 transition-colors"
           >
             Submit another report
           </button>
